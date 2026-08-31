@@ -5,8 +5,7 @@
 //   INTERVALS_API_KEY      (Settings → Developer Settings on intervals.icu)
 //   INTERVALS_ATHLETE_ID   (your athlete id from that page, e.g. i657102)
 //
-// This version never hard-crashes: on any problem it returns a small JSON
-// object describing what went wrong, so we can see the real reason.
+// Never hard-crashes: on any problem it returns small JSON describing why.
 
 const API = "https://intervals.icu/api/v1";
 const SEASON_START = "2026-09-01";
@@ -18,22 +17,16 @@ exports.handler = async () => {
     if (!KEY) return debug("missing INTERVALS_API_KEY env var");
     if (!ATH) return debug("missing INTERVALS_ATHLETE_ID env var");
 
-    // Node 18+ has global fetch; fall back to node-fetch if not.
-    const doFetch = (typeof fetch === "function")
-      ? fetch
-      : (await import("node-fetch")).default;
-
     const auth = "Basic " + Buffer.from("API_KEY:" + KEY).toString("base64");
     const url = `${API}/athlete/${ATH}/activities`
               + `?oldest=${SEASON_START}`
               + `&fields=name,start_date_local,type,distance,moving_time`;
 
-    const res = await doFetch(url, { headers: { Authorization: auth } });
+    const res = await fetch(url, { headers: { Authorization: auth } });
     const text = await res.text();
 
     if (!res.ok) {
-      // surface Intervals' own error (bad key, wrong athlete id, etc.)
-      return debug(`intervals responded ${res.status}`, text.slice(0, 300));
+      return debug("intervals responded " + res.status, text.slice(0, 300));
     }
 
     let acts;
@@ -51,7 +44,7 @@ exports.handler = async () => {
 
     return json(runs, 300);
   } catch (e) {
-    return debug("function threw", String(e && e.message || e));
+    return debug("function threw", String((e && e.message) || e));
   }
 };
 
@@ -60,13 +53,12 @@ function json(obj, cacheSeconds) {
     statusCode: 200,
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": cacheSeconds ? `public, max-age=${cacheSeconds}` : "no-store",
+      "Cache-Control": cacheSeconds ? "public, max-age=" + cacheSeconds : "no-store",
     },
     body: JSON.stringify(obj),
   };
 }
 
-// returns HTTP 200 with an error description so the browser never sees a 502
 function debug(reason, detail) {
   return json({ error: reason, detail: detail || null });
 }
