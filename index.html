@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--
+  rishu.hustle — v0.2  "the lot"
+  My life as a little dusk parking lot.
+  Active pursuits DRIVE (on the road). Parked pursuits SIT (in the lot).
+  Motion = focus. Tap any car for where it's at + its next unlock.
+  Every car is drawn in SVG from a data list below — change the data, change the lot.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>rishu.hustle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+<div class="wrap">
+
+  <div class="bar">
+    <div class="mark">rishu<span class="p">.</span>hustle</div>
+    <div class="stamp">a generalist, parked &amp; in motion · upd aug &rsquo;26</div>
+  </div>
+
+  <div class="ticker">
+    <div class="run" id="tick"></div>
+  </div>
+
+  <!-- ROAD -->
+  <section class="zone">
+    <h2><span class="pulse"></span> on the road</h2>
+    <div class="sub">the three i&rsquo;m driving at right now — engines running, sept &rarr; nov</div>
+    <div class="road"><div class="lane" id="road"></div></div>
+  </section>
+
+  <!-- THE LOG -->
+  <section class="zone">
+    <h2>the log</h2>
+    <div class="sub">sept &rarr; dec — the timed sprint. pick a pursuit, then tap a day to see what i did. <a class="loglink" href="#" id="loghint">+ log today</a></div>
+    <div class="logbox">
+      <div class="logtabs" id="logtabs"></div>
+      <div class="logcal">
+        <div class="ylab" id="ylab"></div>
+        <div class="cal" id="cal"></div>
+      </div>
+      <div class="logcap" id="logcap"></div>
+      <div class="logfoot">showing sample data — wire up baserow to make it real</div>
+    </div>
+    <div class="recenthead">lately</div>
+    <div class="recent" id="recent"></div>
+  </section>
+
+  <!-- LOT -->
+  <section class="zone">
+    <h2>the lot</h2>
+    <div class="sub">parked, not forgotten. tap a car for where it&rsquo;s at + its next move.</div>
+    <div class="lot" id="lot"></div>
+  </section>
+
+  <div class="strip">
+    <div class="stat lit"><b>3</b><span>lit &amp; driving</span></div>
+    <div class="stat"><b>17</b><span>parked in the lot</span></div>
+    <div class="stat"><b>1</b><span>under the tarp</span></div>
+    <div class="stat fun"><b>11/10</b><span>fun</span></div>
+  </div>
+
+  <footer>a commitment device with wheels. when a car moves, i moved. built by rishu — v0.2</footer>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/vehicles.js"></script>
+  <script src="assets/js/sources.js"></script>
+  <script src="assets/js/log.js"></script>
+  <script src="assets/js/intelligence.js"></script>
+  <script src="assets/js/scene.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
