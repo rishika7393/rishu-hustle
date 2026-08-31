@@ -1,11 +1,10 @@
 // Netlify function: fetches your runs from Intervals.icu.
-// TEMPORARY DIAGNOSTIC MODE: add ?debug=1 to the URL to see what Intervals returns.
+// TEMP diagnostic + widened window. Add ?debug=1 to inspect raw data.
 //
-// Env vars (Netlify → Site configuration → Environment variables):
-//   INTERVALS_API_KEY, INTERVALS_ATHLETE_ID
+// Env vars: INTERVALS_API_KEY, INTERVALS_ATHLETE_ID
 
 const API = "https://intervals.icu/api/v1";
-const SEASON_START = "2026-03-01"; // TEMP: widened for testing — set back to "2026-09-01" when done
+const SEASON_START = "2026-03-01"; // TEMP widened for testing (set back to 2026-09-01 later)
 
 exports.handler = async (event) => {
   try {
@@ -17,9 +16,8 @@ exports.handler = async (event) => {
     const wantDebug = event.queryStringParameters && event.queryStringParameters.debug;
 
     const auth = "Basic " + Buffer.from("API_KEY:" + KEY).toString("base64");
-    const url = `${API}/athlete/${ATH}/activities`
-              + `?oldest=${SEASON_START}`
-              + `&fields=name,start_date_local,type,distance,moving_time`;
+    // NOTE: no more fields= filter — let Intervals return the full objects
+    const url = `${API}/athlete/${ATH}/activities?oldest=${SEASON_START}`;
 
     const res = await fetch(url, { headers: { Authorization: auth } });
     const text = await res.text();
@@ -29,13 +27,13 @@ exports.handler = async (event) => {
     try { acts = JSON.parse(text); }
     catch (e) { return debug("could not parse intervals response", text.slice(0, 300)); }
 
-    // --- diagnostic: show everything that came back, before filtering ---
     if (wantDebug) {
+      const first = Array.isArray(acts) && acts[0] ? acts[0] : null;
       return json({
-        total_activities_since: SEASON_START,
         count: Array.isArray(acts) ? acts.length : 0,
-        types_seen: Array.isArray(acts) ? [...new Set(acts.map(a => a.type))] : "not-an-array",
-        sample: Array.isArray(acts) ? acts.slice(0, 5).map(a => ({ date: a.start_date_local, type: a.type, name: a.name })) : acts,
+        types_seen: Array.isArray(acts) ? [...new Set(acts.map(a => a.type))] : "not-array",
+        field_names_on_first: first ? Object.keys(first) : null,
+        first_activity_full: first,
       });
     }
 
