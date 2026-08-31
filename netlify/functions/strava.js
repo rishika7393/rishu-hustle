@@ -1,76 +1,46 @@
-// Netlify function: keeps your Strava client_secret server-side.
-// Two jobs:
-//   1) FIRST-TIME SETUP — visit .../strava?code=XXX (Strava sends this after you approve).
-//      It swaps the code for a refresh token and prints it, so you can save it as an env var.
-//   2) NORMAL USE — with STRAVA_REFRESH_TOKEN set, it returns your recent runs as JSON.
+// Netlify function: fetches your runs from Intervals.icu.
+// (File is still named strava.js so the site's fetch URL doesn't change —
+//  it reads runs, wherever they come from.)
+//
+// Intervals.icu is simple: no OAuth, no refresh tokens. Just an API key,
+// which we keep server-side here so it never touches the browser.
 //
 // Env vars to set in Netlify (Site configuration → Environment variables):
-//   STRAVA_CLIENT_ID       (from your Strava API app)
-//   STRAVA_CLIENT_SECRET   (from your Strava API app — NEVER put this in the site)
-//   STRAVA_REFRESH_TOKEN   (you get this from the one-time setup step below)
+//   INTERVALS_API_KEY      (Settings → Developer Settings on intervals.icu)
+//   INTERVALS_ATHLETE_ID   (your athlete id, also on that settings page — e.g. i123456)
 
-const TOKEN_URL = "https://www.strava.com/oauth/token";
-const ACTS_URL  = "https://www.strava.com/api/v3/athlete/activities";
+const API = "https://intervals.icu/api/v1";
 const SEASON_START = "2026-09-01"; // only pull runs from the sprint window on
 
-exports.handler = async (event) => {
-  const CID    = process.env.STRAVA_CLIENT_ID;
-  const SECRET = process.env.STRAVA_CLIENT_SECRET;
-  const REFRESH = process.env.STRAVA_REFRESH_TOKEN;
-  const code = event.queryStringParameters && event.queryStringParameters.code;
+exports.handler = async () => {
+  const KEY = process.env.56fmzkvy13kj3ugrcbs71zyrx;
+  const ATH = process.env.i657102;
+  if (!KEY || !ATH) return json([]); // not set up yet — site just shows no runs
 
-  if (!CID || !SECRET) {
-    return { statusCode: 500, body: "Missing STRAVA_CLIENT_ID / STRAVA_CLIENT_SECRET env vars." };
+  // Intervals.icu basic auth: username "API_KEY", password = your key
+  const auth = "Basic " + Buffer.from("API_KEY:" + KEY).toString("base64");
+  const url = `${API}/athlete/${ATH}/activities`
+            + `?oldest=${SEASON_START}`
+            + `&fields=name,start_date_local,type,distance,moving_time`;
+
+  try {
+    const res = await fetch(url, { headers: { Authorization: auth } });
+    if (!res.ok) return json([]);
+    const acts = await res.json();
+
+    const runs = (Array.isArray(acts) ? acts : [])
+      .filter(a => (a.type || "").toLowerCase().includes("run"))
+      .map(a => ({
+        date: (a.start_date_local || "").slice(0, 10),
+        minutes: a.moving_time ? Math.round(a.moving_time / 60) : null,
+        distance_km: a.distance ? Math.round(a.distance / 100) / 10 : null,
+        name: a.name || "run",
+      }));
+
+    return json(runs, 300);
+  } catch (e) {
+    return json([]);
   }
-
-  // ---------- 1) one-time setup: exchange the auth code for a refresh token ----------
-  if (code) {
-    const r = await fetch(TOKEN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_id: CID, client_secret: SECRET, code, grant_type: "authorization_code" }),
-    });
-    const t = await r.json();
-    const rt = t.refresh_token || "(no refresh_token — check scope/code)";
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "text/html" },
-      body: `<div style="font-family:system-ui;max-width:640px;margin:40px auto;line-height:1.6">
-        <h2>Almost there.</h2>
-        <p>Copy this value and add it in Netlify as <b>STRAVA_REFRESH_TOKEN</b>, then redeploy:</p>
-        <pre style="background:#f4f4f4;padding:16px;border-radius:8px;font-size:18px;user-select:all">${rt}</pre>
-        <p>Then delete this browser tab. Your site will start showing runs.</p>
-      </div>`,
-    };
-  }
-
-  // ---------- 2) normal use: refresh the token, fetch recent runs ----------
-  if (!REFRESH) return json([]); // not finished setup yet — site just shows no runs
-
-  const tr = await fetch(TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ client_id: CID, client_secret: SECRET, refresh_token: REFRESH, grant_type: "refresh_token" }),
-  });
-  const tok = await tr.json();
-  if (!tok.access_token) return json([]);
-
-  const after = Math.floor(new Date(SEASON_START).getTime() / 1000);
-  const ar = await fetch(`${ACTS_URL}?after=${after}&per_page=100`, {
-    headers: { Authorization: "Bearer " + tok.access_token },
-  });
-  const acts = await ar.json();
-
-  const runs = (Array.isArray(acts) ? acts : [])
-    .filter(a => a.type === "Run" || a.sport_type === "Run")
-    .map(a => ({
-      date: (a.start_date_local || "").slice(0, 10),
-      minutes: a.moving_time ? Math.round(a.moving_time / 60) : null,
-      distance_km: a.distance ? Math.round(a.distance / 100) / 10 : null,
-      name: a.name || "run",
-    }));
-
-  return json(runs, 300);
 };
 
 function json(obj, cacheSeconds) {
