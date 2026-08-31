@@ -1,44 +1,33 @@
 // Netlify function: fetches your runs from Intervals.icu.
-// TEMP diagnostic + widened window. Add ?debug=1 to inspect raw data.
+// (Named strava.js so the site's fetch URL stays the same — it reads runs.)
 //
-// Env vars: INTERVALS_API_KEY, INTERVALS_ATHLETE_ID
+// Only NON-Strava-sourced runs come through with full data (distance/time),
+// because Intervals must blank out Strava-sourced activities. Manual entries,
+// direct device syncs, or Health-Sync pushes all work.
+//
+// Env vars (Netlify → Site configuration → Environment variables):
+//   INTERVALS_API_KEY      (Settings → Developer Settings on intervals.icu)
+//   INTERVALS_ATHLETE_ID   (your athlete id, e.g. i657102)
 
 const API = "https://intervals.icu/api/v1";
-const SEASON_START = "2026-03-01"; // TEMP widened for testing (set back to 2026-09-01 later)
+const SEASON_START = "2026-09-01"; // the sprint window
 
-exports.handler = async (event) => {
+exports.handler = async () => {
   try {
     const KEY = process.env.INTERVALS_API_KEY;
     const ATH = process.env.INTERVALS_ATHLETE_ID;
-    if (!KEY) return debug("missing INTERVALS_API_KEY env var");
-    if (!ATH) return debug("missing INTERVALS_ATHLETE_ID env var");
-
-    const wantDebug = event.queryStringParameters && event.queryStringParameters.debug;
+    if (!KEY || !ATH) return json([]); // not set up yet
 
     const auth = "Basic " + Buffer.from("API_KEY:" + KEY).toString("base64");
-    // NOTE: no more fields= filter — let Intervals return the full objects
     const url = `${API}/athlete/${ATH}/activities?oldest=${SEASON_START}`;
 
     const res = await fetch(url, { headers: { Authorization: auth } });
-    const text = await res.text();
-    if (!res.ok) return debug("intervals responded " + res.status, text.slice(0, 300));
-
-    let acts;
-    try { acts = JSON.parse(text); }
-    catch (e) { return debug("could not parse intervals response", text.slice(0, 300)); }
-
-    if (wantDebug) {
-      const first = Array.isArray(acts) && acts[0] ? acts[0] : null;
-      return json({
-        count: Array.isArray(acts) ? acts.length : 0,
-        types_seen: Array.isArray(acts) ? [...new Set(acts.map(a => a.type))] : "not-array",
-        field_names_on_first: first ? Object.keys(first) : null,
-        first_activity_full: first,
-      });
-    }
+    if (!res.ok) return json([]);
+    const acts = await res.json();
 
     const runs = (Array.isArray(acts) ? acts : [])
-      .filter(a => (a.type || "").toLowerCase().includes("run"))
+      // keep runs that actually have data (Strava-sourced ones come back blank)
+      .filter(a => (a.type || "").toLowerCase().includes("run") && a.distance != null)
       .map(a => ({
         date: (a.start_date_local || "").slice(0, 10),
         minutes: a.moving_time ? Math.round(a.moving_time / 60) : null,
@@ -48,7 +37,7 @@ exports.handler = async (event) => {
 
     return json(runs, 300);
   } catch (e) {
-    return debug("function threw", String((e && e.message) || e));
+    return json([]); // never break the site if Intervals hiccups
   }
 };
 
@@ -62,5 +51,3 @@ function json(obj, cacheSeconds) {
     body: JSON.stringify(obj),
   };
 }
-
-function debug(reason, detail) { return json({ error: reason, detail: detail || null }); }
