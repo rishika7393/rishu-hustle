@@ -1,32 +1,44 @@
 // Netlify function: fetches your runs from Intervals.icu.
-// (File is still named strava.js so the site's fetch URL doesn't change —
-//  it reads runs, wherever they come from.)
+// (Still named strava.js so the site's fetch URL doesn't change.)
 //
-// Intervals.icu is simple: no OAuth, no refresh tokens. Just an API key,
-// which we keep server-side here so it never touches the browser.
-//
-// Env vars to set in Netlify (Site configuration → Environment variables):
+// Env vars (Netlify → Site configuration → Environment variables):
 //   INTERVALS_API_KEY      (Settings → Developer Settings on intervals.icu)
-//   INTERVALS_ATHLETE_ID   (your athlete id, also on that settings page — e.g. i123456)
+//   INTERVALS_ATHLETE_ID   (your athlete id from that page, e.g. i657102)
+//
+// This version never hard-crashes: on any problem it returns a small JSON
+// object describing what went wrong, so we can see the real reason.
 
 const API = "https://intervals.icu/api/v1";
-const SEASON_START = "2026-09-01"; // only pull runs from the sprint window on
+const SEASON_START = "2026-09-01";
 
 exports.handler = async () => {
-  const KEY = process.env.56fmzkvy13kj3ugrcbs71zyrx;
-  const ATH = process.env.i657102;
-  if (!KEY || !ATH) return json([]); // not set up yet — site just shows no runs
-
-  // Intervals.icu basic auth: username "API_KEY", password = your key
-  const auth = "Basic " + Buffer.from("API_KEY:" + KEY).toString("base64");
-  const url = `${API}/athlete/${ATH}/activities`
-            + `?oldest=${SEASON_START}`
-            + `&fields=name,start_date_local,type,distance,moving_time`;
-
   try {
-    const res = await fetch(url, { headers: { Authorization: auth } });
-    if (!res.ok) return json([]);
-    const acts = await res.json();
+    const KEY = process.env.INTERVALS_API_KEY;
+    const ATH = process.env.INTERVALS_ATHLETE_ID;
+    if (!KEY) return debug("missing INTERVALS_API_KEY env var");
+    if (!ATH) return debug("missing INTERVALS_ATHLETE_ID env var");
+
+    // Node 18+ has global fetch; fall back to node-fetch if not.
+    const doFetch = (typeof fetch === "function")
+      ? fetch
+      : (await import("node-fetch")).default;
+
+    const auth = "Basic " + Buffer.from("API_KEY:" + KEY).toString("base64");
+    const url = `${API}/athlete/${ATH}/activities`
+              + `?oldest=${SEASON_START}`
+              + `&fields=name,start_date_local,type,distance,moving_time`;
+
+    const res = await doFetch(url, { headers: { Authorization: auth } });
+    const text = await res.text();
+
+    if (!res.ok) {
+      // surface Intervals' own error (bad key, wrong athlete id, etc.)
+      return debug(`intervals responded ${res.status}`, text.slice(0, 300));
+    }
+
+    let acts;
+    try { acts = JSON.parse(text); }
+    catch (e) { return debug("could not parse intervals response", text.slice(0, 300)); }
 
     const runs = (Array.isArray(acts) ? acts : [])
       .filter(a => (a.type || "").toLowerCase().includes("run"))
@@ -39,7 +51,7 @@ exports.handler = async () => {
 
     return json(runs, 300);
   } catch (e) {
-    return json([]);
+    return debug("function threw", String(e && e.message || e));
   }
 };
 
@@ -52,4 +64,9 @@ function json(obj, cacheSeconds) {
     },
     body: JSON.stringify(obj),
   };
+}
+
+// returns HTTP 200 with an error description so the browser never sees a 502
+function debug(reason, detail) {
+  return json({ error: reason, detail: detail || null });
 }
