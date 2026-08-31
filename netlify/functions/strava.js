@@ -12,8 +12,8 @@ const SEASON_START = "2026-09-01";
 
 exports.handler = async () => {
   try {
-    const KEY = process.env.INTERVALS_API_KEY;
-    const ATH = process.env.INTERVALS_ATHLETE_ID;
+    const KEY = process.env.56fmzkvy13kj3ugrcbs71zyrx;
+    const ATH = process.env.i657102;
     if (!KEY) return debug("missing INTERVALS_API_KEY env var");
     if (!ATH) return debug("missing INTERVALS_ATHLETE_ID env var");
 
