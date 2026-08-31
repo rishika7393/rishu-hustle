@@ -1,21 +1,20 @@
 // Netlify function: fetches your runs from Intervals.icu.
-// (Still named strava.js so the site's fetch URL doesn't change.)
+// TEMPORARY DIAGNOSTIC MODE: add ?debug=1 to the URL to see what Intervals returns.
 //
 // Env vars (Netlify → Site configuration → Environment variables):
-//   INTERVALS_API_KEY      (Settings → Developer Settings on intervals.icu)
-//   INTERVALS_ATHLETE_ID   (your athlete id from that page, e.g. i657102)
-//
-// Never hard-crashes: on any problem it returns small JSON describing why.
+//   INTERVALS_API_KEY, INTERVALS_ATHLETE_ID
 
 const API = "https://intervals.icu/api/v1";
 const SEASON_START = "2026-09-01";
 
-exports.handler = async () => {
+exports.handler = async (event) => {
   try {
     const KEY = process.env.INTERVALS_API_KEY;
     const ATH = process.env.INTERVALS_ATHLETE_ID;
     if (!KEY) return debug("missing INTERVALS_API_KEY env var");
     if (!ATH) return debug("missing INTERVALS_ATHLETE_ID env var");
+
+    const wantDebug = event.queryStringParameters && event.queryStringParameters.debug;
 
     const auth = "Basic " + Buffer.from("API_KEY:" + KEY).toString("base64");
     const url = `${API}/athlete/${ATH}/activities`
@@ -24,14 +23,21 @@ exports.handler = async () => {
 
     const res = await fetch(url, { headers: { Authorization: auth } });
     const text = await res.text();
-
-    if (!res.ok) {
-      return debug("intervals responded " + res.status, text.slice(0, 300));
-    }
+    if (!res.ok) return debug("intervals responded " + res.status, text.slice(0, 300));
 
     let acts;
     try { acts = JSON.parse(text); }
     catch (e) { return debug("could not parse intervals response", text.slice(0, 300)); }
+
+    // --- diagnostic: show everything that came back, before filtering ---
+    if (wantDebug) {
+      return json({
+        total_activities_since: SEASON_START,
+        count: Array.isArray(acts) ? acts.length : 0,
+        types_seen: Array.isArray(acts) ? [...new Set(acts.map(a => a.type))] : "not-an-array",
+        sample: Array.isArray(acts) ? acts.slice(0, 5).map(a => ({ date: a.start_date_local, type: a.type, name: a.name })) : acts,
+      });
+    }
 
     const runs = (Array.isArray(acts) ? acts : [])
       .filter(a => (a.type || "").toLowerCase().includes("run"))
@@ -59,6 +65,4 @@ function json(obj, cacheSeconds) {
   };
 }
 
-function debug(reason, detail) {
-  return json({ error: reason, detail: detail || null });
-}
+function debug(reason, detail) { return json({ error: reason, detail: detail || null }); }
