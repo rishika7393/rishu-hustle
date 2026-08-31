@@ -5,7 +5,7 @@
 //   INTERVALS_API_KEY, INTERVALS_ATHLETE_ID
 
 const API = "https://intervals.icu/api/v1";
-const SEASON_START = "2026-09-01";
+const SEASON_START = "2026-03-01"; // TEMP: widened for testing — set back to "2026-09-01" when done
 
 exports.handler = async (event) => {
   try {
