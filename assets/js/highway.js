@@ -166,11 +166,16 @@ function initWheel(startWeek){
   if(!strip || !wheel || !rot) return;
   wheelWired = true;
 
-  let COLS = [];                                   // cached; re-read only on resize
+  const FOCUS_FRAC = 0.28;                          // where the bright week sits (0 = left edge, .5 = centre)
+  let COLS = [], focusX = 0;                        // focusX (px) computed from FOCUS_FRAC in measure()
   function measure(){
     const cw0 = (strip.querySelector(".wcol") || {}).offsetWidth || 120;
-    const pad = Math.max(0, strip.clientWidth / 2 - cw0 / 2);
-    strip.querySelectorAll(".wspacer").forEach(sp => { sp.style.flex = "none"; sp.style.width = pad + "px"; });
+    focusX = strip.clientWidth * FOCUS_FRAC;
+    const lead  = Math.max(0, focusX - cw0 / 2);
+    const trail = Math.max(0, strip.clientWidth - focusX - cw0 / 2);
+    const sps = strip.querySelectorAll(".wspacer");
+    if(sps[0]){ sps[0].style.flex = "none"; sps[0].style.width = lead  + "px"; }
+    if(sps[1]){ sps[1].style.flex = "none"; sps[1].style.width = trail + "px"; }
     COLS = [...strip.querySelectorAll(".wcol")].map(c => ({
     el: c, w: Number(c.dataset.w), mid: c.offsetLeft + c.offsetWidth / 2,
     left: c.offsetLeft, width: c.offsetWidth,
@@ -185,7 +190,7 @@ function initWheel(startWeek){
     rot.setAttribute("transform", `rotate(${deg.toFixed(2)} 50 50)`);
     if(road) road.style.setProperty("--dash", (-pos * 0.55).toFixed(1) + "px");
 
-    const half = strip.clientWidth / 2, mid = pos + half;
+    const half = strip.clientWidth / 2, mid = pos + focusX;
     let near = 1, best = Infinity;
     for(const c of COLS){
       const dist = c.mid - mid, ad = Math.abs(dist);
@@ -220,7 +225,7 @@ function initWheel(startWeek){
   }
   function centerOn(w){
     const c = COLS.find(x => x.w === w);
-    if(c) setTarget(c.left - (strip.clientWidth - c.width) / 2);
+    if(c) setTarget(c.left + c.width / 2 - focusX);
     run();
   }
   initWheel.centerOn = centerOn;
