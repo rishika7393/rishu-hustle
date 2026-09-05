@@ -180,7 +180,7 @@
     .stamp{ font-size:17px; gap:9px; }
     .ticker span{ font-size:17px; }
     .zone{ margin-top:34px; }
-    .head{ flex-direction:column; align-items:flex-start; gap:3px; margin-bottom:13px; }
+    .head{ flex-direction:column; align-items:flex-start; gap:3px; margin-bottom:24px; }
     .headnum{ text-align:left; font-size:17px; }
 
     .stall{ position:static; }
@@ -316,7 +316,7 @@
   /* ---------- v0.3: information layer ---------- */
 
   /* section heads: a live number where the subtitle used to be */
-  .head{ display:flex; align-items:baseline; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:16px; }
+  .head{ display:flex; align-items:baseline; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:30px; }
   .head h2{ margin:0; }
   .headnum{ font-family:var(--sans); font-weight:700; font-size:12px; letter-spacing:.7px;
     text-transform:uppercase; color:var(--dim); text-align:right; }
@@ -330,11 +330,16 @@
     text-transform:uppercase; line-height:1.35; color:var(--cream); margin-top:8px;
     background:var(--mustard); display:inline-block; padding:3px 9px; border-radius:7px 9px 6px 10px; transform:rotate(-1.2deg); }
 
-  /* insta in the top bar */
-  .ig{ font-family:var(--sans); font-weight:700; font-size:12px; letter-spacing:.6px; color:var(--lamp);
-    text-decoration:none; border-bottom:2.5px solid var(--lamp); }
-  .ig:hover{ color:var(--lamp-s); border-color:var(--lamp-s); }
-  .bar .stamp{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  /* socials in the top bar */
+  .bar .stamp{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .social{ display:inline-flex; align-items:center; gap:12px; }
+  .soc{ display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+    font-family:var(--sans); font-weight:700; font-size:12px; letter-spacing:.6px; color:var(--dim);
+    transition:transform .12s ease; }
+  .soc svg{ width:22px; height:22px; display:block; flex:none; }
+  .soc .h{ color:var(--lamp); border-bottom:2px solid var(--lamp); }
+  .soc:hover{ transform:translateY(-1px); }
+  .soc:hover .h{ color:var(--lamp-s); border-color:var(--lamp-s); }
 
   .s-title .ssub{ font-family:var(--sans); font-weight:500; font-size:12px; letter-spacing:.5px;
     text-transform:uppercase; color:var(--neon-c); margin-top:6px; text-shadow:0 0 10px rgba(51,230,255,.5); }
