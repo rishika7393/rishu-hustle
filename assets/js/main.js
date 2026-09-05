@@ -1,8 +1,13 @@
 /* =========================================================================
-   main.js — BOOTSTRAP. Kicks off the data load and the ticker.
+   main.js — BOOTSTRAP. Kicks off the data loads and the ticker.
    ========================================================================= */
 
 fetchLogs().then(renderLog);
+
+// pull the lot from Baserow; applyPursuits re-renders it (or keeps the built-in list on failure)
+if(typeof fetchPursuits==="function"){
+  fetchPursuits().then(applyPursuits);
+}
 
 /* ---------- ticker ---------- */
 const items = [
