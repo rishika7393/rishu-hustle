@@ -203,9 +203,9 @@ function initWheel(startWeek){
     }
     if(near !== lastNear){                          // only touch the DOM when the week changes
       lastNear = near;
-      const list = projects.filter(p => p.week === near);
+      const live = projects.filter(p => p.status !== "wip").length;
       if(label) label.innerHTML = `week <b>${near}</b>` +
-        `<span class="hint">${list.length ? list.map(p => p.name).join(" · ") : "nothing shipped"}</span>`;
+        `<span class="hint">${live} live project${live === 1 ? "" : "s"}</span>`;
       wheel.setAttribute("aria-valuenow", near);
     }
   }
