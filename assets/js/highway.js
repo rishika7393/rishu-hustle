@@ -3,8 +3,9 @@
    ========================================================================= */
 
 const RACES = [
-  { name:"race no.1", date:"2026-09-27" },
-  { name:"race no.2", date:"2026-12-13" },
+  { name:"wipro race",        date:"2026-09-27" },
+  { name:"midnight marathon", date:"2026-12-05" },
+  { name:"tata race",         date:"2026-12-13" },
 ];
 
 /* ---------- lenny 100 ----------
@@ -203,7 +204,7 @@ function initWheel(startWeek){
     if(near !== lastNear){                          // only touch the DOM when the week changes
       lastNear = near;
       const list = projects.filter(p => p.week === near);
-      if(label) label.innerHTML = `week <b>${near}</b> of ${WEEKS}` +
+      if(label) label.innerHTML = `week <b>${near}</b>` +
         `<span class="hint">${list.length ? list.map(p => p.name).join(" · ") : "nothing shipped"}</span>`;
       wheel.setAttribute("aria-valuenow", near);
     }
@@ -310,30 +311,26 @@ function renderInfo(){
   const lastDay = [...all].sort().pop();
   const since = daysAgo(lastDay);
 
-  document.getElementById("stamp").innerHTML = `lenny 100 · day ${dayOf100()} of 100`;
+  const _now = new Date(), _dn = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+  document.getElementById("stamp").innerHTML = `${_dn[_now.getDay()]} · ${_now.getDate()} ${MN[_now.getMonth()]}`;
 
   renderWall();
 
-  const week = ymd(new Date(today0() - 6 * DAY));
-  const weekSessions = past.filter(l => l.date >= week).length;
-  document.getElementById("roadnum").innerHTML =
-    `<b>${weekSessions}</b> sessions this week · <b>${lanesThisWeek()}</b> of 3 lanes touched`;
+  const roadnumEl = document.getElementById("roadnum");
+  if(roadnumEl) roadnumEl.innerHTML = "";
 
   // the odometer: every number lives here, and nowhere else
   const fit = logsFor("fitness").map(r => r.pushups).filter(v => v != null);
   const race = nextRace();
   const shipped = projects.filter(p => p.status !== "wip").length;
 
+  const totalKm = past.reduce((s, l) => s + (l.distance_km || 0), 0);
   const items = [];
-  items.push(`<span class="up">day ${dayOf100()}/100</span>`);
   items.push(`<b>${streak}</b> day logging streak`);
-  if(fit.length) items.push(`<b>${Math.max(...fit)}</b> pushups reached · from ${fit[0]}`);
   items.push(`<b>${shipped}</b> projects shipped`);
-  if(race) items.push(`<b>${daysTo(race.date)}</b> days to ${race.name}`);
-  ACTIVITIES.forEach(a => { const g = gaugeFor(a.key); if(g) items.push(`${a.name} · <b>${g.text}</b>`); });
-  items.push(`<b>${past.length}</b> sessions logged`);
-  if(since != null) items.push(since === 0 ? `logged today ✓` : `last logged <b>${since}d</b> ago`);
-  items.push(`best streak <b>${longestStreak(all)}</b>`);
+  if(fit.length) items.push(`<b>${Math.max(...fit)}</b> pushups reached`);
+  if(race) items.push(`<span class="up"><b>${daysTo(race.date)}</b> days to ${race.name}</span>`);
+  if(totalKm > 0) items.push(`<b>${totalKm.toFixed(1)}</b> km ran`);
 
   const line = items.join(`<span class="sep">/</span>`);
   document.getElementById("tick").innerHTML = `<span>${line}<span class="sep">/</span>${line}</span>`;
