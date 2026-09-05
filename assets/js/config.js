@@ -30,6 +30,7 @@ const MN = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","d
 // ---- Baserow (read-only token — safe on the client) ----
 const TABLE_ID   = 1165694;   // sessions (the log)
 const PURSUITS_TABLE = 1178599; // pursuits (the cars)
+const PROJECTS_TABLE = 1179574; // projects (the lenny-100 plates)
 const READ_TOKEN = "rYQOxjfcTxQ2kht7ouCmEcGkUv9lC9c0";
 let LIVE = false;
 let LAST_ERR = "";
@@ -39,7 +40,7 @@ let LAST_ERR = "";
 let byDate = {};
 let LOGS = [];
 let current = "lenny";             // default view
-const YWD = ["m","t","w","t","f"]; // mon–fri only
+const YWD = ["m","t","w","t","f","s","s"]; // mon–sun (all 7)
 
 let toastTimer;
 
