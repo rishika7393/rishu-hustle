@@ -50,26 +50,13 @@ function buildRoad(){
   LIVE_ACTIVE.forEach(v => roadEl.appendChild(stall(v, true)));
 }
 
-/* temporary parked grid inside the basement section — batch 2 swaps in the 3D */
-function buildLot(){
-  const g = document.getElementById("garage");
-  if(!g) return;
-  ["scene","ghint","gload","g3dtip","g3ddetail"].forEach(id=>{ const n=g.querySelector("#"+id); if(n) n.style.display="none"; });
-  let grid = g.querySelector(".lotgrid");
-  if(!grid){ grid = document.createElement("div"); grid.className = "lotgrid"; g.appendChild(grid); }
-  grid.innerHTML = "";
-  LIVE_PARKED.forEach(v => grid.appendChild(stall(v, false)));
-}
-
 // main.js calls this once Baserow returns; null/empty keeps the fallback
 function applyPursuits(p){
   if(p && (p.active.length || p.parked.length)){ LIVE_ACTIVE = p.active; LIVE_PARKED = p.parked; }
   buildRoad();
-  buildLot();
 }
 
 buildRoad();  // instant paint from the fallback; repaints when Baserow answers
-buildLot();
 
 document.addEventListener("click", ()=>{
   document.querySelectorAll(".stall.open").forEach(s=>{ s.classList.remove("open"); s.querySelector(".spot").setAttribute("aria-expanded","false"); });
