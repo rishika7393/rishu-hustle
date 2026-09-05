@@ -40,7 +40,7 @@ let LAST_ERR = "";
 let byDate = {};
 let LOGS = [];
 let current = "lenny";             // default view
-const YWD = ["m","t","w","t","f"]; // mon–fri only
+const YWD = ["m","t","w","t","f","s","s"]; // mon–sun (all 7)
 
 let toastTimer;
 
