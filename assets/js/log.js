@@ -35,7 +35,7 @@ function renderCal(){
 
   const days = [];
   for(let d=new Date(WIN_START); d<=WIN_END; d.setDate(d.getDate()+1)){
-    if(offset(d) < 5) days.push(new Date(d));
+    days.push(new Date(d));
   }
   let cells = "", total = 0, prevM = null;
   for(let p=0; p<offset(days[0]); p++) cells += `<div class="cell pad"></div>`;
@@ -47,7 +47,7 @@ function renderCal(){
   document.getElementById("cal").innerHTML = cells;
   document.getElementById("ylab").innerHTML = YWD.map(w=>`<span>${w}</span>`).join("");
   document.getElementById("logcap").innerHTML =
-    `<b>${act.name}</b> · ${total} sessions across sept–dec · weekends hidden`;
+    `<b>${act.name}</b> · ${total} sessions across sept–dec`;
 
   document.querySelectorAll("#logtabs button").forEach(b=>{
     b.classList.toggle("active", b.dataset.k===current);
