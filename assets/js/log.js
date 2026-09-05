@@ -1,6 +1,8 @@
 /* =========================================================================
-   log.js — THE LOG UI. Calendar strip, 'lately' feed, and the day toast.
+   log.js — the log calendar, tabs, lately feed. Reads LOGS from sources.js.
    ========================================================================= */
+
+// state (byDate, LOGS, current, YWD, toastTimer) is declared in config.js — the engine owns it
 
 function showToast(html){
   const t = document.getElementById("toast");
@@ -98,4 +100,5 @@ function renderLog(logs){
   }
 
   renderCal();
+  try{ renderInfo(); }catch(e){ console.warn("info layer:", e); }
 }
