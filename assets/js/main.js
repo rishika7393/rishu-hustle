@@ -22,3 +22,12 @@ const fontsReady = (document.fonts && document.fonts.load)
   : Promise.resolve();
 Promise.all([fontsReady, pursuitsReady]).then(startBasement).catch(startBasement);
 setTimeout(startBasement, 4000);   // fallback if something stalls; init is guarded
+
+// back-to-top: show after scrolling, jump up on click (escape hatch past the 3D basement)
+const toTop = document.getElementById("totop");
+if(toTop){
+  toTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  const onScroll = () => toTop.classList.toggle("show", window.scrollY > 500);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+}
