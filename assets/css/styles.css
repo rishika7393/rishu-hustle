@@ -45,7 +45,7 @@
   .zone h2{ font-family:var(--hand); font-size:clamp(27px,7vw,34px); font-weight:700; position:relative;
     display:flex; align-items:center; gap:11px; padding-bottom:15px; }
   .zone h2::after{ content:""; position:absolute; left:1px; bottom:0; width:46px; height:5px; border-radius:3px;
-    background:var(--acc,var(--neon-m)); box-shadow:0 0 11px var(--acc,var(--neon-m)); }
+    background:var(--acc,var(--neon-m)); box-shadow:0 0 7px var(--acc,var(--neon-m)); }
   .zone:nth-of-type(1){ --acc:var(--neon-m); }
   .zone:nth-of-type(2){ --acc:var(--neon-c); }
   .zone:nth-of-type(3){ --acc:var(--neon-p); }
@@ -180,7 +180,7 @@
     .stamp{ font-size:17px; gap:9px; }
     .ticker span{ font-size:17px; }
     .zone{ margin-top:34px; }
-    .head{ flex-direction:column; align-items:flex-start; gap:3px; margin-bottom:24px; }
+    .head{ flex-direction:column; align-items:flex-start; gap:3px; margin-bottom:32px; }
     .headnum{ text-align:left; font-size:17px; }
 
     .stall{ position:static; }
@@ -316,7 +316,7 @@
   /* ---------- v0.3: information layer ---------- */
 
   /* section heads: a live number where the subtitle used to be */
-  .head{ display:flex; align-items:baseline; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:30px; }
+  .head{ display:flex; align-items:baseline; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:42px; }
   .head h2{ margin:0; }
   .headnum{ font-family:var(--sans); font-weight:700; font-size:12px; letter-spacing:.7px;
     text-transform:uppercase; color:var(--dim); text-align:right; }
@@ -358,3 +358,13 @@
 #totop.show{ display:flex; }
 #totop:hover{ transform:translateY(-2px); }
 #totop:active{ transform:translateY(0); }
+
+/* custom car images on the road — cat sits on the tarmac, head pokes into the sky.
+   Two knobs to tune by eye:  --carimg-w = size,  --carimg-rise = how high it sits. */
+.carimg{ --carimg-w:clamp(92px,20vw,152px); --carimg-rise:0.72;
+  width:var(--carimg-w); height:auto; display:block; margin:0 auto;
+  margin-top:calc(var(--carw) * (var(--carimg-rise) * -1));
+  filter:drop-shadow(2px 4px 0 rgba(43,42,38,.16)); }
+.drive .carimg{ animation:carbob 2.8s ease-in-out infinite; transform-origin:bottom center; }
+@keyframes carbob{ 0%,100%{ transform:translateY(0) rotate(-.6deg); } 50%{ transform:translateY(-4px) rotate(.6deg); } }
+@media (prefers-reduced-motion:reduce){ .drive .carimg{ animation:none; } }
