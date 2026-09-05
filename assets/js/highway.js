@@ -151,9 +151,8 @@ function renderWall(){
       : `<div class="plate blank"></div>`;
     h += `<div class="${cls}" data-w="${w}"><div class="wlab">wk ${String(w).padStart(2,"0")}</div>${plates}</div>`;
   }
-  box.innerHTML = h;
-  const maxPW = projects.length ? Math.max(...projects.map(p => p.week)) : 1;
-  initWheel(Math.min(now, maxPW));   // park on the latest week that actually has projects, not empty road
+  box.innerHTML = '<div class="wspacer"></div>' + h + '<div class="wspacer"></div>';
+  initWheel(1);   // start centered on week 1; spacers let the ends reach the focal centre
 }
 
 let wheelWired = false;
@@ -168,7 +167,11 @@ function initWheel(startWeek){
   wheelWired = true;
 
   let COLS = [];                                   // cached; re-read only on resize
-  function measure(){ COLS = [...strip.querySelectorAll(".wcol")].map(c => ({
+  function measure(){
+    const cw0 = (strip.querySelector(".wcol") || {}).offsetWidth || 120;
+    const pad = Math.max(0, strip.clientWidth / 2 - cw0 / 2);
+    strip.querySelectorAll(".wspacer").forEach(sp => { sp.style.flex = "none"; sp.style.width = pad + "px"; });
+    COLS = [...strip.querySelectorAll(".wcol")].map(c => ({
     el: c, w: Number(c.dataset.w), mid: c.offsetLeft + c.offsetWidth / 2,
     left: c.offsetLeft, width: c.offsetWidth,
     base: c.classList.contains("ahead") ? 0.5 : 1 })); }
@@ -263,6 +266,9 @@ function initWheel(startWeek){
   });
   wheel.addEventListener("pointermove", e => {
     if(!dragging) return;
+    if(e.pointerType === "mouse" && e.buttons === 0){   // button not held -> not a real drag; stop
+      dragging = false; prev = null; wheel.classList.remove("grabbing"); return;
+    }
     const p = polar(e);
     if(p.grip < DEAD){ prev = null; return; }        // hand on the hub: no turn
     if(prev === null){ prev = p.a; return; }         // re-acquire without jumping
@@ -278,6 +284,8 @@ function initWheel(startWeek){
   const release = () => { dragging = false; prev = null; wheel.classList.remove("grabbing"); run(); };
   wheel.addEventListener("pointerup", release);
   wheel.addEventListener("pointercancel", release);
+  window.addEventListener("pointerup", release);      // release even if the mouse-up lands off the wheel
+  window.addEventListener("pointercancel", release);
 
   wheel.addEventListener("keydown", e => {
     const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
