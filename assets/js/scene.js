@@ -11,6 +11,11 @@ function stall(v, driving){
   const nowL   = priv ? "kept to myself" : v.now;
   const unlockL= priv ? "private. that’s all you get." : v.unlock;
 
+  // custom car image (assets/cars/<img>) when set + not private; otherwise the SVG car
+  const carHTML = (v.img && !priv)
+    ? `<img class="carimg" src="assets/cars/${v.img}" alt="${name}" loading="lazy">`
+    : vehicle(shown);
+
   const el = document.createElement("div");
   el.className = "stall" + (driving ? " drive" : "");
   el.innerHTML = `
@@ -19,20 +24,12 @@ function stall(v, driving){
     </button>
     ${driving
       ? `<div class="mrow"><div class="mname">${name}</div><div class="flag">${v.flag||""}</div></div>`
-      : `<div class="cap">${name}</div>`}
-    <div class="detail">
-      <div class="dn">${name}</div>
-      <div class="now">now · ${nowL}</div>
-      <div class="unlock"><b>next</b> <span class="arrow">→</span> ${unlockL}</div>
-    </div>`;
+      : `<div class="cap">${name}</div>`}`;
 
   const btn = el.querySelector(".spot");
   btn.addEventListener("click", (e)=>{
     e.stopPropagation();
-    const wasOpen = el.classList.contains("open");
-    document.querySelectorAll(".stall.open").forEach(s=>{ s.classList.remove("open"); s.querySelector(".spot").setAttribute("aria-expanded","false"); });
-    if(!wasOpen){ el.classList.add("open"); btn.setAttribute("aria-expanded","true"); }
-    if(driving && v.key && typeof renderCal==="function"){ current = v.key; renderCal(); }
+    if(driving && v.key && typeof renderCal==="function"){ current = v.key; renderCal(); }  // road car -> swing the calendar
     hideToast();
   });
   return el;
@@ -58,7 +55,4 @@ function applyPursuits(p){
 
 buildRoad();  // instant paint from the fallback; repaints when Baserow answers
 
-document.addEventListener("click", ()=>{
-  document.querySelectorAll(".stall.open").forEach(s=>{ s.classList.remove("open"); s.querySelector(".spot").setAttribute("aria-expanded","false"); });
-  hideToast();
-});
+document.addEventListener("click", ()=>{ hideToast(); });
