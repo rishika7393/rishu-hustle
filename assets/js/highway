@@ -152,7 +152,8 @@ function renderWall(){
     h += `<div class="${cls}" data-w="${w}"><div class="wlab">wk ${String(w).padStart(2,"0")}</div>${plates}</div>`;
   }
   box.innerHTML = h;
-  initWheel(now);
+  const maxPW = projects.length ? Math.max(...projects.map(p => p.week)) : 1;
+  initWheel(Math.min(now, maxPW));   // park on the latest week that actually has projects, not empty road
 }
 
 let wheelWired = false;
