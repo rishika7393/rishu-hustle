@@ -43,7 +43,7 @@
 
   .zone{ margin-top:46px; }
   .zone h2{ font-family:var(--hand); font-size:clamp(27px,7vw,34px); font-weight:700; position:relative;
-    display:flex; align-items:center; gap:11px; padding-bottom:8px; }
+    display:flex; align-items:center; gap:11px; padding-bottom:15px; }
   .zone h2::after{ content:""; position:absolute; left:1px; bottom:0; width:46px; height:5px; border-radius:3px;
     background:var(--acc,var(--neon-m)); box-shadow:0 0 11px var(--acc,var(--neon-m)); }
   .zone:nth-of-type(1){ --acc:var(--neon-m); }
