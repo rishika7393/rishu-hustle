@@ -352,3 +352,6 @@
 .stage--base .lotgrid .stall{ margin:0; }
 .stage--base .lotgrid .cap{ font-family:var(--plate); font-size:12px; letter-spacing:.02em;
   text-align:center; color:#f4efe0; margin-top:6px; opacity:.92; }
+
+/* highway strip end-spacers (width set in JS) so week 1 + last week can reach centre */
+.strip100 .wspacer{ flex:none; }
