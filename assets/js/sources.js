@@ -134,3 +134,41 @@ function describe(r){
   return bits.join(" · ") || "logged";
 }
 
+
+/* ---------- pursuits: the cars, read from Baserow (falls back to config.js) ---------- */
+function mapPursuit(r){
+  const g = n => field(r, n);
+  const p = val(g("private"));
+  return {
+    sort:   num(g("sort")) ?? 0,
+    name:   txt(g("name")),
+    key:    txt(g("key")),
+    status: txt(g("status")).toLowerCase(),
+    private: (p===true || String(p).toLowerCase()==="true"),
+    type:   txt(g("type")).toLowerCase()  || "car",
+    color:  txt(g("color")).toLowerCase() || "coral",
+    badge:  txt(g("badge")),
+    now:    txt(g("now")),
+    unlock: txt(g("unlock")),
+    flag:   txt(g("flag")),
+  };
+}
+
+async function fetchPursuits(){
+  const url = `https://api.baserow.io/api/database/rows/table/${PURSUITS_TABLE}/?user_field_names=true&size=200`;
+  try{
+    const res = await fetch(url, { headers:{ Authorization:"Token "+READ_TOKEN } });
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    if(!Array.isArray(data.results)) throw new Error("unexpected response");
+    const all = data.results.map(mapPursuit).filter(p => p.name && p.name !== "");
+    all.sort((a,b) => a.sort - b.sort);
+    const active = all.filter(p => p.status === "active");
+    const parked = all.filter(p => p.status !== "active");
+    if(!active.length && !parked.length) throw new Error("no usable rows");
+    return { active, parked };
+  }catch(e){
+    console.warn("pursuits read failed — keeping the built-in list:", e);
+    return null;
+  }
+}

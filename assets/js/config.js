@@ -28,7 +28,8 @@ const WIN_END   = new Date(2026,11,31); // dec 31
 const MN = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
 
 // ---- Baserow (read-only token — safe on the client) ----
-const TABLE_ID   = 1165694;
+const TABLE_ID   = 1165694;   // sessions (the log)
+const PURSUITS_TABLE = 1178599; // pursuits (the cars)
 const READ_TOKEN = "rYQOxjfcTxQ2kht7ouCmEcGkUv9lC9c0";
 let LIVE = false;
 let LAST_ERR = "";
@@ -78,4 +79,3 @@ const parked = [
   { name:"shuffle dance", type:"car", color:"mint", badge:"🕺", now:"—", unlock:"just start" },
   { name:"— — —", type:"covered", color:"night", badge:"", now:"kept to myself", unlock:"private. there&rsquo;s a car under here. that&rsquo;s all you get." },
 ];
-
