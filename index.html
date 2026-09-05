@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <!--
-  rishu.hustle — v0.2  "the lot"
-  My life as a little dusk parking lot.
-  Active pursuits DRIVE (on the road). Parked pursuits SIT (in the lot).
-  Motion = focus. Tap any car for where it's at + its next unlock.
-  Every car is drawn in SVG from a data list below — change the data, change the lot.
+  rishu.hustle — redesign (v14 body on the modular, backend-driven engine).
+  Markup + tags only. Styling in assets/css/styles.css. Content/data in assets/js/*.
 -->
 <html lang="en">
 <head>
@@ -13,15 +10,17 @@
 <title>rishu.hustle</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/styles.css" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Caveat:wght@400;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><filter id="rough" x="-6%" y="-6%" width="112%" height="112%"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4"/></filter></svg>
 <div class="wrap">
 
   <div class="bar">
     <div class="mark">rishu<span class="p">.</span>hustle</div>
-    <div class="stamp">a generalist, parked &amp; in motion · upd aug &rsquo;26</div>
+    <div class="stamp"><span id="stamp">one for the scattershot drive in me</span>
+      <a class="ig" href="https://instagram.com/YOURHANDLE" target="_blank" rel="noopener">@YOURHANDLE</a></div>
   </div>
 
   <div class="ticker">
@@ -30,15 +29,33 @@
 
   <!-- ROAD -->
   <section class="zone">
-    <h2><span class="pulse"></span> on the road</h2>
-    <div class="sub">the three i&rsquo;m driving at right now — engines running, sept &rarr; nov</div>
-    <div class="road"><div class="lane" id="road"></div></div>
+    <div class="head">
+      <h2><span class="pulse"></span> on the road</h2>
+      <div class="headnum" id="roadnum">&nbsp;</div>
+    </div>
+    <div class="scene">
+      <div class="sky" aria-hidden="true">
+        <svg class="sun" viewBox="0 0 60 60">
+          <g stroke="var(--line)" stroke-width="2.6" stroke-linecap="round">
+            <line x1="30" y1="3" x2="30" y2="11"/><line x1="30" y1="49" x2="30" y2="57"/>
+            <line x1="3" y1="30" x2="11" y2="30"/><line x1="49" y1="30" x2="57" y2="30"/>
+            <line x1="11" y1="11" x2="16" y2="16"/><line x1="44" y1="44" x2="49" y2="49"/>
+            <line x1="49" y1="11" x2="44" y2="16"/><line x1="16" y1="44" x2="11" y2="49"/>
+          </g>
+          <circle cx="30" cy="30" r="13" fill="var(--mustard)" stroke="var(--line)" stroke-width="2.6"/>
+        </svg>
+        <svg class="cloud c1" viewBox="0 0 92 42"><path d="M20 37 C10 37 5 31 7 24 C9 18 15 16 20 17 C21 8 30 3 38 6 C44 2 54 4 57 11 C64 8 74 12 74 20 C82 20 87 26 85 32 C83 37 77 37 72 37 Z" fill="#fff" stroke="var(--line)" stroke-width="2.6" stroke-linejoin="round"/></svg>
+        <svg class="cloud c2" viewBox="0 0 92 42"><path d="M20 37 C10 37 5 31 7 24 C9 18 15 16 20 17 C21 8 30 3 38 6 C44 2 54 4 57 11 C64 8 74 12 74 20 C82 20 87 26 85 32 C83 37 77 37 72 37 Z" fill="#fff" stroke="var(--line)" stroke-width="2.6" stroke-linejoin="round"/></svg>
+        <svg class="cloud c3" viewBox="0 0 92 42"><path d="M20 37 C10 37 5 31 7 24 C9 18 15 16 20 17 C21 8 30 3 38 6 C44 2 54 4 57 11 C64 8 74 12 74 20 C82 20 87 26 85 32 C83 37 77 37 72 37 Z" fill="#fff" stroke="var(--line)" stroke-width="2.6" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="tarmac" aria-hidden="true"></div>
+      <div class="lane" id="road"></div>
+    </div>
   </section>
 
   <!-- THE LOG -->
   <section class="zone">
-    <h2>the log</h2>
-    <div class="sub">sept &rarr; dec — the timed sprint. pick a pursuit, then tap a day to see what i did. <a class="loglink" href="#" id="loghint">+ log today</a></div>
+    <div class="head"><h2>the log</h2></div>
     <div class="logbox">
       <div class="logtabs" id="logtabs"></div>
       <div class="logcal">
@@ -46,37 +63,85 @@
         <div class="cal" id="cal"></div>
       </div>
       <div class="logcap" id="logcap"></div>
-      <div class="logfoot">showing sample data — wire up baserow to make it real</div>
+      <div class="logfoot">loading&hellip;</div>
     </div>
-    <div class="recenthead">lately</div>
+  </section>
+
+  <!-- LATELY -->
+  <section class="zone">
+    <div class="head">
+      <h2>lately</h2>
+    </div>
     <div class="recent" id="recent"></div>
   </section>
 
-  <!-- LOT -->
+  <!-- THE 100 WALL -->
   <section class="zone">
-    <h2>the lot</h2>
-    <div class="sub">parked, not forgotten. tap a car for where it&rsquo;s at + its next move.</div>
-    <div class="lot" id="lot"></div>
+    <div class="head">
+      <h2>lenny 100 highway</h2>
+    </div>
+    <div class="glass">
+      <svg class="hwsun" viewBox="0 0 60 60" aria-hidden="true">
+        <g stroke="var(--line)" stroke-width="2.6" stroke-linecap="round">
+          <line x1="30" y1="4" x2="30" y2="12"/><line x1="5" y1="30" x2="13" y2="30"/>
+          <line x1="47" y1="30" x2="55" y2="30"/><line x1="12" y1="12" x2="17" y2="17"/>
+          <line x1="48" y1="12" x2="43" y2="17"/>
+        </g>
+        <circle cx="30" cy="30" r="12" fill="var(--mustard)" stroke="var(--line)" stroke-width="2.6"/>
+      </svg>
+      <div class="strip100" id="strip100"></div>
+      <div class="hwroad" id="hwroad" aria-hidden="true"></div>
+      <div class="swheelwrap">
+        <svg class="wnudge" id="wnudge" viewBox="-16 -16 132 132" aria-hidden="true">
+          <path d="M4.1 17.9 A56 56 0 0 1 95.9 17.9"/>
+          <path d="M95.9 17.9 l-1.1 -11.9 M95.9 17.9 l-10.9 -5.0"/>
+          <text class="turnlab" x="50" y="-2" text-anchor="middle">turn me</text>
+        </svg>
+        <svg class="swheel" id="swheel" viewBox="0 0 100 100" role="slider" tabindex="0"
+             aria-label="steer along the highway" aria-valuemin="1" aria-valuemax="15" aria-valuenow="1">
+          <circle class="grip" cx="50" cy="50" r="49"/>
+          <g id="swrot">
+            <circle class="rim" cx="50" cy="50" r="43"/>
+            <line class="spoke" x1="50" y1="50" x2="11" y2="58"/>
+            <line class="spoke" x1="50" y1="50" x2="89" y2="58"/>
+            <line class="spoke" x1="50" y1="50" x2="50" y2="92"/>
+            <circle class="hub" cx="50" cy="50" r="12"/>
+            <path class="notch" d="M44 9 h12 l-2 9 h-8 z"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div class="wtxt" id="wtxt">&nbsp;<span class="hint">turn the wheel, or swipe the road</span></div>
   </section>
 
-  <div class="strip">
-    <div class="stat lit"><b>3</b><span>lit &amp; driving</span></div>
-    <div class="stat"><b>17</b><span>parked in the lot</span></div>
-    <div class="stat"><b>1</b><span>under the tarp</span></div>
-    <div class="stat fun"><b>11/10</b><span>fun</span></div>
-  </div>
+  <!-- THE BASEMENT (immersive 3D) -->
+  <section class="zone imm">
+    <div class="stage stage--base" id="garage">
+      <canvas id="scene"></canvas>
+      <div class="s-title"><h2>the basement</h2><div class="ssub">everything currently parked · tap a car to see where it stopped</div></div>
+      <div class="g-hint" id="ghint">drag to look · scroll to zoom · tap a car</div>
+      <div class="g3dtip" id="g3dtip"></div>
+      <div class="detail g3d" id="g3ddetail"><div class="dn"></div><div class="now"></div><div class="unlock"></div></div>
+      <div class="g-load" id="gload">sketching the basement…</div>
+    </div>
+  </section>
 
-  <footer>a commitment device with wheels. when a car moves, i moved. built by rishu — v0.2</footer>
+  <footer>a commitment device with wheels. when a car moves, i moved. built by rishu — v0.3</footer>
 </div>
 
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/vehicles.js"></script>
-  <script src="assets/js/sources.js"></script>
-  <script src="assets/js/log.js"></script>
-  <script src="assets/js/intelligence.js"></script>
-  <script src="assets/js/scene.js"></script>
-  <script src="assets/js/main.js"></script>
+
+
+<!-- engine (content + data) -->
+<script src="assets/js/config.js"></script>
+<script src="assets/js/sources.js"></script>
+<!-- body (rendering) -->
+<script src="assets/js/vehicles.js"></script>
+<script src="assets/js/log.js"></script>
+<script src="assets/js/intelligence.js"></script>
+<script src="assets/js/scene.js"></script>
+<script src="assets/js/highway.js"></script>
+<script src="assets/js/main.js"></script>
 </body>
 </html>
