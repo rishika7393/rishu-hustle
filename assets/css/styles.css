@@ -343,15 +343,4 @@
   }
 
 
-/* --- batch 1: temporary 2D parked grid in the basement section (batch 2 = real 3D) --- */
-.stage--base{ height:auto !important; min-height:auto; padding:0 0 34px; }
-.stage--base>canvas{ display:none !important; }
-.stage--base .s-title{ position:static !important; transform:none !important; padding:26px 22px 2px; }
-.stage--base .lotgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(116px,1fr));
-  gap:22px 10px; padding:14px 22px 6px; position:relative; z-index:3; }
-.stage--base .lotgrid .stall{ margin:0; }
-.stage--base .lotgrid .cap{ font-family:var(--plate); font-size:12px; letter-spacing:.02em;
-  text-align:center; color:#f4efe0; margin-top:6px; opacity:.92; }
-
-/* highway strip end-spacers (width set in JS) so week 1 + last week can reach centre */
 .strip100 .wspacer{ flex:none; }
