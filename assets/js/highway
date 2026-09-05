@@ -12,7 +12,7 @@ const RACES = [
    week-long build reads as seven days of work, not six days of nothing.
    status: "wip" while it's in the shop, "shipped" once it's out. */
 const LENNY_START = new Date(2026, 7, 20);   // aug 20 '26 = day 1. change me.
-const projects = [
+let projects = [   // fallback until Baserow answers (see applyProjects)
   { n:1, name:"the lot",      week:1, status:"shipped", url:"" },
   { n:2, name:"dusk palette", week:1, status:"shipped", url:"" },
   { n:3, name:"the basement", week:2, status:"shipped", url:"" },
@@ -158,7 +158,7 @@ function renderWall(){
 
 let wheelWired = false;
 function initWheel(startWeek){
-  if(wheelWired){ if(initWheel.centerOn) initWheel.centerOn(startWeek); return; }
+  if(wheelWired){ requestAnimationFrame(()=>{ if(initWheel.remeasure) initWheel.remeasure(); if(initWheel.centerOn) initWheel.centerOn(startWeek); }); return; }
   const strip = document.getElementById("strip100");
   const wheel = document.getElementById("swheel");
   const rot   = document.getElementById("swrot");
@@ -221,6 +221,7 @@ function initWheel(startWeek){
     run();
   }
   initWheel.centerOn = centerOn;
+  initWheel.remeasure = measure;
 
   // swiping the road directly — the wheel follows it
   strip.addEventListener("scroll", () => {
@@ -323,4 +324,13 @@ function renderInfo(){
 
   const line = items.join(`<span class="sep">/</span>`);
   document.getElementById("tick").innerHTML = `<span>${line}<span class="sep">/</span>${line}</span>`;
+}
+
+
+/* live projects — main.js calls this when Baserow answers; redraws the strip + wheel */
+function applyProjects(list){
+  if(list && list.length){ projects = list; }
+  if(typeof renderInfo === "function" && Array.isArray(LOGS) && LOGS.length){
+    try{ renderInfo(); }catch(e){ console.warn("projects re-render:", e); }
+  }
 }
