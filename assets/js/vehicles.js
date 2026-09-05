@@ -1,7 +1,5 @@
 /* =========================================================================
-   vehicles.js — THE ASSET LIBRARY. Every car/van/etc. is drawn here in SVG.
-   Add a new vehicle 'type' by adding a branch in vehicle(), then reference it
-   from config.js. This is where visual assets grow.
+   vehicles.js — the ink-drawn car library (v14). paint() + vehicle().
    ========================================================================= */
 
 function paint(c){ return getComputedStyle(document.documentElement).getPropertyValue('--'+c).trim() || c; }
@@ -12,8 +10,8 @@ function vehicle(v){
   const glass = "rgba(230,240,255,.28)";
   const badge = v.badge ? `<text x="60" y="26" font-size="17" text-anchor="middle">${v.badge}</text>` : "";
   const wheels = `
-    <g class="wheel"><circle cx="34" cy="54" r="9" fill="#1a1a1a"/><circle cx="34" cy="54" r="3.4" fill="#5a5140"/></g>
-    <g class="wheel"><circle cx="86" cy="54" r="9" fill="#1a1a1a"/><circle cx="86" cy="54" r="3.4" fill="#5a5140"/></g>`;
+    <g class="wheel"><circle cx="34" cy="54" r="9" fill="#1a1a1a"/><circle cx="34" cy="54" r="3.6" fill="#5a5140"/><line x1="34" y1="45.5" x2="34" y2="62.5" stroke="#7a7159" stroke-width="1.3"/><line x1="25.5" y1="54" x2="42.5" y2="54" stroke="#7a7159" stroke-width="1.3"/><circle cx="34" cy="47.6" r="1.5" fill="#e3d7bb"/></g>
+    <g class="wheel"><circle cx="86" cy="54" r="9" fill="#1a1a1a"/><circle cx="86" cy="54" r="3.6" fill="#5a5140"/><line x1="86" y1="45.5" x2="86" y2="62.5" stroke="#7a7159" stroke-width="1.3"/><line x1="77.5" y1="54" x2="94.5" y2="54" stroke="#7a7159" stroke-width="1.3"/><circle cx="86" cy="47.6" r="1.5" fill="#e3d7bb"/></g>`;
   const head = `<ellipse class="lamp-on" cx="112" cy="42" rx="6" ry="4" fill="var(--lamp-s)" opacity="0"/>`;
 
   let body = "";
@@ -46,7 +44,7 @@ function vehicle(v){
       <path d="M48 20 l12 0 0 12 -22 0 q4-11 10-12z" fill="${glass}"/>
       <path d="M64 20 q7 0 12 6 l4 6 -16 0 0-12z" fill="${glass}"/>
       <rect x="82" y="40" width="16" height="14" rx="2" fill="#d6483f"/>
-      <text x="90" y="51" font-size="11" fill="#fff" text-anchor="middle" font-family="Space Mono, monospace" font-weight="700">L</text>`;
+      <text x="90" y="51" font-size="11" fill="#fff" text-anchor="middle" font-family="Oswald, sans-serif" font-weight="700">L</text>`;
   } else if(v.type==="covered"){
     body = `
       <path d="M12 50 q0-22 20-30 q28-11 56 0 q20 8 20 30 q0 3-3 3 l-90 0 q-3 0-3-3z" fill="#2b2619"/>

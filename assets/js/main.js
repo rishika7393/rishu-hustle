@@ -1,18 +1,33 @@
 /* =========================================================================
-   main.js — BOOTSTRAP. Kicks off the data loads and the ticker.
+   main.js — BOOTSTRAP (full: 2D redesign + 3D basement).
    ========================================================================= */
 
+// LOGS → the log calendar, lately feed, and the live ticker
 fetchLogs().then(renderLog);
 
-// pull the lot from Baserow; applyPursuits re-renders it (or keeps the built-in list on failure)
-if(typeof fetchPursuits==="function"){
-  fetchPursuits().then(applyPursuits);
-}
+// PURSUITS → the road (applyPursuits repaints from Baserow); also feeds the basement
+const pursuitsReady = fetchPursuits().then(applyPursuits);
 
-/* ---------- ticker ---------- */
-const items = [
-  "up next", "sep 27 — race no.1", "ship application #1", "dec 13 — race no.2",
-  "lowkey jam in sept", "a quest in oct", "first full pushup", "one clean song",
-];
-const line = items.map((t,i)=> i===0 ? `<b>${t}</b>` : t).join(`<span class="sep">/</span>`);
-document.getElementById("tick").innerHTML = `<span>${line}<span class="sep">/</span>${line}</span>`;
+// PROJECTS → the lenny-100 highway plates
+fetchProjects().then(applyProjects);
+
+// BASEMENT → needs the 3D lib + fonts (for plate text) + the parked data, whichever is slowest
+function startBasement(){
+  const gload = document.getElementById("gload");
+  if(typeof THREE === "undefined"){ if(gload) gload.textContent = "3d couldn't load — check your connection, then reload"; return; }
+  if(typeof __initBasement === "function") __initBasement();   // self-guards against double-init
+}
+const fontsReady = (document.fonts && document.fonts.load)
+  ? Promise.all([document.fonts.load("700 40px Oswald"), document.fonts.load("700 40px Caveat")]).catch(()=>{})
+  : Promise.resolve();
+Promise.all([fontsReady, pursuitsReady]).then(startBasement).catch(startBasement);
+setTimeout(startBasement, 4000);   // fallback if something stalls; init is guarded
+
+// back-to-top: show after scrolling, jump up on click (escape hatch past the 3D basement)
+const toTop = document.getElementById("totop");
+if(toTop){
+  toTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  const onScroll = () => toTop.classList.toggle("show", window.scrollY > 500);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+}

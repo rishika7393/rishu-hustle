@@ -1,6 +1,8 @@
 /* =========================================================================
-   log.js — THE LOG UI. Calendar strip, 'lately' feed, and the day toast.
+   log.js — the log calendar, tabs, lately feed. Reads LOGS from sources.js.
    ========================================================================= */
+
+// state (byDate, LOGS, current, YWD, toastTimer) is declared in config.js — the engine owns it
 
 function showToast(html){
   const t = document.getElementById("toast");
@@ -33,7 +35,7 @@ function renderCal(){
 
   const days = [];
   for(let d=new Date(WIN_START); d<=WIN_END; d.setDate(d.getDate()+1)){
-    if(offset(d) < 5) days.push(new Date(d));
+    days.push(new Date(d));
   }
   let cells = "", total = 0, prevM = null;
   for(let p=0; p<offset(days[0]); p++) cells += `<div class="cell pad"></div>`;
@@ -45,7 +47,7 @@ function renderCal(){
   document.getElementById("cal").innerHTML = cells;
   document.getElementById("ylab").innerHTML = YWD.map(w=>`<span>${w}</span>`).join("");
   document.getElementById("logcap").innerHTML =
-    `<b>${act.name}</b> · ${total} sessions across sept–dec · weekends hidden`;
+    `<b>${act.name}</b> · ${total} sessions across sept–dec`;
 
   document.querySelectorAll("#logtabs button").forEach(b=>{
     b.classList.toggle("active", b.dataset.k===current);
@@ -98,4 +100,5 @@ function renderLog(logs){
   }
 
   renderCal();
+  try{ renderInfo(); }catch(e){ console.warn("info layer:", e); }
 }

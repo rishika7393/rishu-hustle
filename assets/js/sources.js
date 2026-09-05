@@ -172,3 +172,32 @@ async function fetchPursuits(){
     return null;
   }
 }
+
+/* ---------- projects: the lenny-100 plates, read from Baserow (falls back to highway.js) ---------- */
+function mapProject(r){
+  const g = n => field(r, n);
+  return {
+    n:      num(g("n")) ?? 0,
+    name:   txt(g("name")),
+    week:   num(g("week")) ?? 1,
+    status: txt(g("status")).toLowerCase() || "wip",
+    url:    txt(g("url")),
+  };
+}
+
+async function fetchProjects(){
+  const url = `https://api.baserow.io/api/database/rows/table/${PROJECTS_TABLE}/?user_field_names=true&size=200`;
+  try{
+    const res = await fetch(url, { headers:{ Authorization:"Token "+READ_TOKEN } });
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    if(!Array.isArray(data.results)) throw new Error("unexpected response");
+    const all = data.results.map(mapProject).filter(p => p.name && p.name !== "");
+    all.sort((a,b) => a.n - b.n);
+    if(!all.length) throw new Error("no usable rows");
+    return all;
+  }catch(e){
+    console.warn("projects read failed — keeping the built-in list:", e);
+    return null;
+  }
+}
